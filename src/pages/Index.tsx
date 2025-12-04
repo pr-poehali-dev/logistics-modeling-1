@@ -22,19 +22,23 @@ const Index = () => {
     canvas.height = 400;
 
     const nodes = [
-      { id: 'A', x: 100, y: 200, label: 'Склад А' },
-      { id: 'B', x: 250, y: 100, label: 'Пункт Б' },
-      { id: 'C', x: 250, y: 300, label: 'Пункт В' },
-      { id: 'D', x: 400, y: 150, label: 'Пункт Г' },
-      { id: 'E', x: 500, y: 200, label: 'Клиент' }
+      { id: 'A', x: 80, y: 200, label: 'Город A' },
+      { id: 'B', x: 200, y: 100, label: 'Город B' },
+      { id: 'C', x: 200, y: 300, label: 'Город C' },
+      { id: 'D', x: 320, y: 150, label: 'Город D' },
+      { id: 'E', x: 440, y: 250, label: 'Город E' },
+      { id: 'F', x: 540, y: 200, label: 'Город F' }
     ];
 
     const edges = [
       { from: 'A', to: 'B', weight: 4, color: '#94A3B8' },
       { from: 'A', to: 'C', weight: 2, color: '#0EA5E9' },
-      { from: 'B', to: 'D', weight: 3, color: '#94A3B8' },
-      { from: 'C', to: 'D', weight: 5, color: '#0EA5E9' },
-      { from: 'D', to: 'E', weight: 2, color: '#0EA5E9' }
+      { from: 'B', to: 'D', weight: 1, color: '#94A3B8' },
+      { from: 'C', to: 'D', weight: 3, color: '#0EA5E9' },
+      { from: 'C', to: 'E', weight: 8, color: '#94A3B8' },
+      { from: 'D', to: 'E', weight: 2, color: '#0EA5E9' },
+      { from: 'D', to: 'F', weight: 6, color: '#94A3B8' },
+      { from: 'E', to: 'F', weight: 3, color: '#0EA5E9' }
     ];
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -90,19 +94,26 @@ const Index = () => {
     canvas.height = 400;
 
     const activities = [
-      { id: 1, x: 100, y: 200, label: 'Старт' },
-      { id: 2, x: 250, y: 150, label: 'A (3д)' },
-      { id: 3, x: 250, y: 250, label: 'B (2д)' },
-      { id: 4, x: 400, y: 200, label: 'C (4д)' },
-      { id: 5, x: 500, y: 200, label: 'Финиш' }
+      { id: 0, x: 80, y: 200, label: 'Старт', critical: true },
+      { id: 1, x: 180, y: 200, label: 'A', critical: true },
+      { id: 2, x: 280, y: 120, label: 'B', critical: true },
+      { id: 3, x: 280, y: 280, label: 'C', critical: false },
+      { id: 4, x: 380, y: 200, label: 'D', critical: true },
+      { id: 5, x: 480, y: 120, label: 'E', critical: true },
+      { id: 6, x: 480, y: 280, label: 'F', critical: false },
+      { id: 7, x: 560, y: 200, label: 'G', critical: true }
     ];
 
     const connections = [
-      { from: 1, to: 2, critical: true },
-      { from: 1, to: 3, critical: false },
-      { from: 2, to: 4, critical: true },
-      { from: 3, to: 4, critical: false },
-      { from: 4, to: 5, critical: true }
+      { from: 0, to: 1, label: 'A(5д)', critical: true },
+      { from: 1, to: 2, label: 'B(8д)', critical: true },
+      { from: 1, to: 3, label: 'C(6д)', critical: false },
+      { from: 2, to: 4, label: '', critical: true },
+      { from: 3, to: 4, label: '', critical: false },
+      { from: 4, to: 5, label: 'E(3д)', critical: true },
+      { from: 4, to: 6, label: 'F(2д)', critical: false },
+      { from: 5, to: 7, label: '', critical: true },
+      { from: 6, to: 7, label: '', critical: false }
     ];
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -118,18 +129,27 @@ const Index = () => {
         ctx.lineTo(toNode.x, toNode.y);
         ctx.stroke();
 
+        if (conn.label) {
+          const midX = (fromNode.x + toNode.x) / 2;
+          const midY = (fromNode.y + toNode.y) / 2;
+          ctx.fillStyle = '#333333';
+          ctx.font = 'bold 12px Roboto';
+          ctx.textAlign = 'center';
+          ctx.fillText(conn.label, midX, midY - 5);
+        }
+
         if (conn.critical) {
           const angle = Math.atan2(toNode.y - fromNode.y, toNode.x - fromNode.x);
-          const arrowSize = 12;
+          const arrowSize = 10;
           ctx.fillStyle = '#0EA5E9';
           ctx.beginPath();
-          ctx.moveTo(toNode.x - 30, toNode.y);
+          ctx.moveTo(toNode.x - 25, toNode.y);
           ctx.lineTo(
-            toNode.x - 30 - arrowSize * Math.cos(angle - Math.PI / 6),
+            toNode.x - 25 - arrowSize * Math.cos(angle - Math.PI / 6),
             toNode.y - arrowSize * Math.sin(angle - Math.PI / 6)
           );
           ctx.lineTo(
-            toNode.x - 30 - arrowSize * Math.cos(angle + Math.PI / 6),
+            toNode.x - 25 - arrowSize * Math.cos(angle + Math.PI / 6),
             toNode.y - arrowSize * Math.sin(angle + Math.PI / 6)
           );
           ctx.closePath();
@@ -139,15 +159,15 @@ const Index = () => {
     });
 
     activities.forEach(activity => {
-      ctx.fillStyle = activity.id === 1 || activity.id === 5 ? '#0EA5E9' : '#FFFFFF';
-      ctx.strokeStyle = '#0EA5E9';
-      ctx.lineWidth = 3;
+      ctx.fillStyle = activity.critical ? '#0EA5E9' : '#FFFFFF';
+      ctx.strokeStyle = activity.critical ? '#0EA5E9' : '#94A3B8';
+      ctx.lineWidth = activity.critical ? 3 : 2;
       ctx.beginPath();
-      ctx.arc(activity.x, activity.y, 30, 0, 2 * Math.PI);
+      ctx.arc(activity.x, activity.y, 28, 0, 2 * Math.PI);
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = activity.id === 1 || activity.id === 5 ? '#FFFFFF' : '#333333';
+      ctx.fillStyle = activity.critical ? '#FFFFFF' : '#333333';
       ctx.font = 'bold 14px Roboto';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -504,18 +524,17 @@ const Index = () => {
 
               <h3 className="text-xl font-semibold text-gray-800 mb-4">2.1. Решение задачи поиска кратчайшего пути с использованием графовой модели</h3>
 
-              <h4 className="text-lg font-semibold text-gray-800 mb-3">Постановка задачи</h4>
+              <h4 className="text-lg font-semibold text-gray-800 mb-3">Условие задачи</h4>
               <p className="text-gray-700 leading-relaxed mb-4 text-justify">
-                Логистическая компания осуществляет доставку грузов со склада А к конечному клиенту через промежуточные транспортные узлы. Необходимо определить кратчайший маршрут доставки с минимальными транспортными затратами.
+                Транспортная компания осуществляет доставку грузов между городами. Необходимо найти кратчайший маршрут из города A в город F, минимизируя общее расстояние перевозки.
               </p>
 
-              <p className="text-gray-700 leading-relaxed mb-4"><strong>Исходные данные:</strong></p>
-              <ul className="list-disc ml-8 text-gray-700 space-y-2 mb-6">
-                <li>Склад А — начальная точка отправления</li>
-                <li>Промежуточные пункты: Б, В, Г</li>
-                <li>Клиент — конечная точка доставки</li>
-                <li>Расстояния между пунктами указаны в километрах</li>
-              </ul>
+              <p className="text-gray-700 leading-relaxed mb-4 text-justify">
+                <strong>Дано:</strong> граф транспортной сети, где вершины — города, рёбра — дороги с указанием расстояний (км).
+              </p>
+              <p className="text-gray-700 leading-relaxed mb-6 text-justify">
+                <strong>Найти:</strong> кратчайший путь от A до F и его длину.
+              </p>
 
               <div className="my-8 text-center">
                 <canvas ref={graphCanvasRef} className="mx-auto border-2 border-gray-200 rounded-lg shadow-md" />
@@ -523,136 +542,92 @@ const Index = () => {
                 <p className="text-sm text-blue-600 font-semibold mt-2">Синим цветом выделен кратчайший путь</p>
               </div>
 
-              <h4 className="text-lg font-semibold text-gray-800 mb-3 mt-6">Матрица расстояний</h4>
-              <div className="overflow-x-auto mb-6">
-                <table className="min-w-full border-collapse border border-gray-300">
-                  <thead className="bg-blue-600 text-white">
-                    <tr>
-                      <th className="border border-gray-300 px-4 py-2">От \ До</th>
-                      <th className="border border-gray-300 px-4 py-2">A</th>
-                      <th className="border border-gray-300 px-4 py-2">Б</th>
-                      <th className="border border-gray-300 px-4 py-2">В</th>
-                      <th className="border border-gray-300 px-4 py-2">Г</th>
-                      <th className="border border-gray-300 px-4 py-2">Клиент</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white">
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-2 font-semibold">A</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">4</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">2</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                    </tr>
-                    <tr className="bg-gray-50">
-                      <td className="border border-gray-300 px-4 py-2 font-semibold">Б</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">3</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-2 font-semibold">В</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">5</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                    </tr>
-                    <tr className="bg-gray-50">
-                      <td className="border border-gray-300 px-4 py-2 font-semibold">Г</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">2</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <h4 className="text-lg font-semibold text-gray-800 mb-3 mt-6">Решение алгоритмом Дейкстры</h4>
+              <h4 className="text-lg font-semibold text-gray-800 mb-3 mt-6">Решение</h4>
               
-              <p className="text-gray-700 leading-relaxed mb-3"><strong>Шаг 1:</strong> Инициализация</p>
-              <ul className="list-disc ml-8 text-gray-700 space-y-1 mb-4">
-                <li>Расстояние до начальной вершины A = 0</li>
-                <li>Расстояния до остальных вершин = ∞</li>
-              </ul>
+              <p className="text-gray-700 leading-relaxed mb-3 text-justify">
+                Применим алгоритм Дейкстры для поиска кратчайшего пути:
+              </p>
 
-              <p className="text-gray-700 leading-relaxed mb-3"><strong>Шаг 2:</strong> Обработка вершины A</p>
-              <ul className="list-disc ml-8 text-gray-700 space-y-1 mb-4">
-                <li>A → Б: расстояние = 4 км</li>
-                <li>A → В: расстояние = 2 км</li>
-              </ul>
-
-              <p className="text-gray-700 leading-relaxed mb-3"><strong>Шаг 3:</strong> Выбираем вершину В (минимальное расстояние = 2)</p>
-              <ul className="list-disc ml-8 text-gray-700 space-y-1 mb-4">
-                <li>В → Г: расстояние = 2 + 5 = 7 км</li>
-              </ul>
-
-              <p className="text-gray-700 leading-relaxed mb-3"><strong>Шаг 4:</strong> Выбираем вершину Б (расстояние = 4)</p>
-              <ul className="list-disc ml-8 text-gray-700 space-y-1 mb-4">
-                <li>Б → Г: расстояние = 4 + 3 = 7 км (не улучшает)</li>
-              </ul>
-
-              <p className="text-gray-700 leading-relaxed mb-3"><strong>Шаг 5:</strong> Выбираем вершину Г (расстояние = 7)</p>
-              <ul className="list-disc ml-8 text-gray-700 space-y-1 mb-4">
-                <li>Г → Клиент: расстояние = 7 + 2 = 9 км</li>
-              </ul>
+              <ol className="list-decimal ml-8 text-gray-700 space-y-2 mb-6">
+                <li><strong>Инициализация:</strong> расстояние до A = 0, до остальных вершин = ∞</li>
+                <li><strong>Посещаем вершину A:</strong> обновляем расстояния до B (4 км) и C (2 км)</li>
+                <li><strong>Посещаем вершину C:</strong> обновляем расстояния до D (2+3=5 км) и E (2+8=10 км)</li>
+                <li><strong>Посещаем вершину B:</strong> проверяем путь через D (4+1=5 км, не улучшает)</li>
+                <li><strong>Посещаем вершину D:</strong> обновляем E (5+2=7 км) и F (5+6=11 км)</li>
+                <li><strong>Посещаем вершину E:</strong> обновляем F (7+3=10 км)</li>
+                <li><strong>Достигнута вершина F</strong></li>
+              </ol>
 
               <div className="bg-green-50 border-l-4 border-green-600 p-4 mb-6 mt-6">
-                <p className="text-sm font-semibold text-green-900 mb-2">Результат</p>
+                <p className="text-sm font-semibold text-green-900 mb-2">Ответ</p>
                 <p className="text-sm text-gray-700 mb-2">
-                  <strong>Кратчайший маршрут:</strong> A → В → Г → Клиент
+                  <strong>Кратчайший путь:</strong> A → C → D → E → F
                 </p>
                 <p className="text-sm text-gray-700">
-                  <strong>Общая длина маршрута:</strong> 2 + 5 + 2 = 9 километров
+                  <strong>Длина пути:</strong> 10 км
                 </p>
               </div>
-
-              <h4 className="text-lg font-semibold text-gray-800 mb-3 mt-6">Экономический эффект</h4>
-              <p className="text-gray-700 leading-relaxed mb-4 text-justify">
-                При стоимости доставки 50 рублей за километр использование оптимального маршрута позволяет сэкономить относительно альтернативного пути A → Б → Г → Клиент (4 + 3 + 2 = 9 км). В данном случае оба маршрута имеют равную длину, однако в более сложных сетях оптимизация может дать экономию до 20-30%.
-              </p>
 
               <h3 className="text-xl font-semibold text-gray-800 mb-4 mt-10">2.2. Решение задачи планирования проекта с использованием сетевой модели</h3>
 
-              <h4 className="text-lg font-semibold text-gray-800 mb-3">Постановка задачи</h4>
-              <p className="text-gray-700 leading-relaxed mb-4 text-justify">
-                Логистическая компания планирует внедрение новой системы управления складом. Необходимо построить сетевую модель проекта, определить критический путь и минимальный срок реализации.
+              <h4 className="text-lg font-semibold text-gray-800 mb-3">Условие задачи</h4>
+              <p className="text-gray-700 leading-relaxed mb-6 text-justify">
+                Компания планирует запуск нового распределительного центра. Необходимо определить минимальный срок реализации проекта и выявить критические работы.
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-800 mb-3">Перечень работ проекта</h4>
+              <h4 className="text-lg font-semibold text-gray-800 mb-3">Перечень работ</h4>
               <div className="overflow-x-auto mb-6">
                 <table className="min-w-full border-collapse border border-gray-300">
                   <thead className="bg-blue-600 text-white">
                     <tr>
-                      <th className="border border-gray-300 px-4 py-2">Код работы</th>
-                      <th className="border border-gray-300 px-4 py-2">Наименование</th>
-                      <th className="border border-gray-300 px-4 py-2">Продолжительность (дни)</th>
-                      <th className="border border-gray-300 px-4 py-2">Предшествующие работы</th>
+                      <th className="border border-gray-300 px-3 py-2">Работа</th>
+                      <th className="border border-gray-300 px-3 py-2">Наименование</th>
+                      <th className="border border-gray-300 px-3 py-2">Длительность</th>
+                      <th className="border border-gray-300 px-3 py-2">Предшествует</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white">
+                  <tbody className="bg-white text-sm">
                     <tr>
-                      <td className="border border-gray-300 px-4 py-2 text-center">A</td>
-                      <td className="border border-gray-300 px-4 py-2">Анализ требований</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">3</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">A</td>
+                      <td className="border border-gray-300 px-3 py-2">Проектирование</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">5 дней</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">—</td>
                     </tr>
                     <tr className="bg-gray-50">
-                      <td className="border border-gray-300 px-4 py-2 text-center">B</td>
-                      <td className="border border-gray-300 px-4 py-2">Закупка оборудования</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">2</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">—</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">B</td>
+                      <td className="border border-gray-300 px-3 py-2">Закупка оборудования</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">8 дней</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">после A</td>
                     </tr>
                     <tr>
-                      <td className="border border-gray-300 px-4 py-2 text-center">C</td>
-                      <td className="border border-gray-300 px-4 py-2">Установка и настройка</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">4</td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">A, B</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">C</td>
+                      <td className="border border-gray-300 px-3 py-2">Подготовка помещения</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">6 дней</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">после A</td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">D</td>
+                      <td className="border border-gray-300 px-3 py-2">Монтаж оборудования</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">4 дня</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">после B и C</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">E</td>
+                      <td className="border border-gray-300 px-3 py-2">Тестирование системы</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">3 дня</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">после D</td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">F</td>
+                      <td className="border border-gray-300 px-3 py-2">Обучение персонала</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">2 дня</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">после D</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">G</td>
+                      <td className="border border-gray-300 px-3 py-2">Запуск центра</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">1 день</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">после E и F</td>
                     </tr>
                   </tbody>
                 </table>
@@ -664,37 +639,95 @@ const Index = () => {
                 <p className="text-sm text-blue-600 font-semibold mt-2">Синим цветом выделен критический путь</p>
               </div>
 
-              <h4 className="text-lg font-semibold text-gray-800 mb-3 mt-6">Расчёт временных параметров</h4>
+              <h4 className="text-lg font-semibold text-gray-800 mb-3 mt-6">Решение</h4>
 
-              <p className="text-gray-700 leading-relaxed mb-3"><strong>Ранние сроки:</strong></p>
-              <ul className="list-disc ml-8 text-gray-700 space-y-1 mb-4">
-                <li>T<sub>p</sub>(Старт) = 0 дней</li>
-                <li>T<sub>p</sub>(A) = 0 + 3 = 3 дня</li>
-                <li>T<sub>p</sub>(B) = 0 + 2 = 2 дня</li>
-                <li>T<sub>p</sub>(C) = max(3, 2) + 4 = 7 дней</li>
-                <li>T<sub>p</sub>(Финиш) = 7 + 0 = 7 дней</li>
+              <p className="text-gray-700 leading-relaxed mb-3 text-justify">
+                Используем метод критического пути (CPM):
+              </p>
+
+              <p className="text-gray-700 leading-relaxed mb-2"><strong>Шаг 1: Определение возможных путей</strong></p>
+              <ul className="list-disc ml-8 text-gray-700 space-y-1 mb-5">
+                <li>Путь 1: A → B → D → E → G (5+8+4+3+1 = 21 день)</li>
+                <li>Путь 2: A → B → D → F → G (5+8+4+2+1 = 20 дней)</li>
+                <li>Путь 3: A → C → D → E → G (5+6+4+3+1 = 19 дней)</li>
+                <li>Путь 4: A → C → D → F → G (5+6+4+2+1 = 18 дней)</li>
               </ul>
 
-              <div className="bg-green-50 border-l-4 border-green-600 p-4 mb-6 mt-6">
-                <p className="text-sm font-semibold text-green-900 mb-2">Результат анализа</p>
+              <p className="text-gray-700 leading-relaxed mb-3"><strong>Шаг 2: Расчёт ранних и поздних сроков</strong></p>
+              <div className="overflow-x-auto mb-6">
+                <table className="min-w-full border-collapse border border-gray-300 text-sm">
+                  <thead className="bg-blue-600 text-white">
+                    <tr>
+                      <th className="border border-gray-300 px-3 py-2">Работа</th>
+                      <th className="border border-gray-300 px-3 py-2">Ранний срок</th>
+                      <th className="border border-gray-300 px-3 py-2">Поздний срок</th>
+                      <th className="border border-gray-300 px-3 py-2">Резерв</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white">
+                    <tr>
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">A (5)</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">0–5</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">0–5</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center bg-green-50 font-semibold">0</td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">B (8)</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">5–13</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">5–13</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center bg-green-50 font-semibold">0</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">C (6)</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">5–11</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">7–13</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center bg-yellow-50">2</td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">D (4)</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">13–17</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">13–17</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center bg-green-50 font-semibold">0</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">E (3)</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">17–20</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">17–20</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center bg-green-50 font-semibold">0</td>
+                    </tr>
+                    <tr className="bg-gray-50">
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">F (2)</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">17–19</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">18–20</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center bg-yellow-50">1</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-gray-300 px-3 py-2 text-center font-semibold">G (1)</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">20–21</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center">20–21</td>
+                      <td className="border border-gray-300 px-3 py-2 text-center bg-green-50 font-semibold">0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="bg-green-50 border-l-4 border-green-600 p-4 mb-6">
+                <p className="text-sm font-semibold text-green-900 mb-2">Ответ</p>
                 <p className="text-sm text-gray-700 mb-2">
-                  <strong>Критический путь:</strong> Старт → A → C → Финиш
+                  <strong>Критический путь:</strong> A → B → D → E → G
                 </p>
                 <p className="text-sm text-gray-700 mb-2">
-                  <strong>Продолжительность проекта:</strong> 7 дней
+                  <strong>Минимальный срок проекта:</strong> 21 день
                 </p>
                 <p className="text-sm text-gray-700">
-                  <strong>Резерв работы B:</strong> 1 день (можно начать на день позже без срыва сроков)
+                  <strong>Критические работы:</strong> A, B, D, E, G (работы с нулевым резервом времени)
                 </p>
               </div>
 
-              <h4 className="text-lg font-semibold text-gray-800 mb-3 mt-6">Практические выводы</h4>
-              <ul className="list-disc ml-8 text-gray-700 space-y-2 mb-6">
-                <li>Необходимо уделить особое внимание работам A и C, так как они находятся на критическом пути</li>
-                <li>Любая задержка работ на критическом пути увеличит срок реализации всего проекта</li>
-                <li>Работа B имеет резерв времени и может быть выполнена с некоторой задержкой</li>
-                <li>Для сокращения сроков проекта следует сократить продолжительность критических работ</li>
-              </ul>
+              <h4 className="text-lg font-semibold text-gray-800 mb-3 mt-6">Вывод</h4>
+              <p className="text-gray-700 leading-relaxed mb-4 text-justify">
+                Задержка любой из критических работ приведёт к увеличению общего срока проекта. Работы C и F имеют резервы времени 2 и 1 день соответственно, что позволяет гибко управлять ресурсами.
+              </p>
             </div>
 
             <div className="mb-12">
@@ -709,7 +742,7 @@ const Index = () => {
               </p>
 
               <p className="text-gray-700 leading-relaxed mb-4 text-justify">
-                Во второй главе решены две практические задачи. Первая задача посвящена поиску оптимального маршрута доставки грузов с использованием графовой модели. Применение алгоритма Дейкстры позволило найти кратчайший путь длиной 9 километров по маршруту A → В → Г → Клиент. Вторая задача демонстрирует использование сетевой модели для планирования логистического проекта. Анализ критического пути показал, что минимальный срок реализации проекта составляет 7 дней.
+                Во второй главе решены две практические задачи. Первая задача посвящена поиску оптимального маршрута доставки грузов между городами с использованием графовой модели. Применение алгоритма Дейкстры позволило найти кратчайший путь длиной 10 километров по маршруту A → C → D → E → F. Вторая задача демонстрирует использование сетевой модели для планирования запуска распределительного центра. Анализ критического пути показал, что минимальный срок реализации проекта составляет 21 день при критическом пути A → B → D → E → G.
               </p>
 
               <p className="text-gray-700 leading-relaxed mb-4 text-justify">
